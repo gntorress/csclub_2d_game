@@ -13,9 +13,10 @@ public class Tile {
     public boolean collision;
 
     /*
-    TYPES:
+    TILES:
     0 - Grass
     1 - Rock Wall
+    TODO: MORE TYPES
      */
     public Tile(int type) throws IOException {
         collision = false;
@@ -26,12 +27,12 @@ public class Tile {
                 break;
             case 1:
                 image = getImage("rock.png");
-                collision = false;
+                collision = true;
                 break;
             default:
                 Logger.log(1, "INVALID MAP TILE! VALUE: " + type);
                 image = getImage("rock.png");
-                collision = false;
+                collision = true;
         }
     }
     private BufferedImage getImage(String fileName) throws IOException {

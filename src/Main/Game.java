@@ -34,7 +34,6 @@ public class Game implements Runnable {
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //close window = exit program
         window.setResizable(false);         //prevent user resizing (by dragging)
         window.setTitle(Main.TITLE);        //set title (from Main)
-        window.setLocationRelativeTo(null); //force the window to open in the center of screen
         window.setVisible(true);            //set the window to be visible
 
         //initialize panel settings

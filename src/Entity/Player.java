@@ -1,13 +1,9 @@
 package Entity;
 
-import Main.GameState;
-
-import javax.imageio.ImageIO;
-import java.io.IOException;
-
 public class Player extends Entity{
 
-    //TODO: GAMEPLAY
+    //TODO: GAMEPLAY, MORE ENTITY TYPES
+    //this will hold player-exclusive stuff
 
     public Player() {
         super();

@@ -7,6 +7,11 @@ public class Main {
     //TARGET_FPS: the fps to try to render at
     public static final int TARGET_FPS = 60;
 
+    /*CONTROL_TYPE: the control scheme.
+        0: WASD movement
+        1: MOUSE CLICK movement
+    */
+    public static final int CONTROL_TYPE = 0;
 
     public static void main(String[] args) {
         //create game object
