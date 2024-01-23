@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 public class GamePanel extends JPanel {
     private static final int TILE_SIZE = 32;
     private static final int EDGE_BORDER_THICKNESS = 16;
-    private static final int RENDER_SCALE = 2;
+    public static final int RENDER_SCALE = 2;
     private GameState state;
     public double fps;
 
@@ -55,15 +55,18 @@ public class GamePanel extends JPanel {
     }
 
     private void drawUnits(Graphics2D g2D){
-        g2D.setColor(Color.WHITE);
         for(Entity u : state.getUnits()){
-            int x = (int)(u.x - (u.radius/2) + 0.5);
-            int y = (int)(u.y - (u.radius/2) + 0.5);
-            int rad = u.radius;
-            g2D.fillRect(x,y,rad,rad);
+            BufferedImage image = u.image;
+            AffineTransform transform = new AffineTransform();
+            transform.scale(RENDER_SCALE,RENDER_SCALE);
+            int x = (int)(u.x - (u.radius/2) + 0.5) / RENDER_SCALE;
+            int y = (int)(u.y - (u.radius/2) + 0.5) / RENDER_SCALE;
+            transform.translate(x, y);
+            g2D.drawImage(image, transform, null);
         }
     }
     private void drawUI(Graphics2D g2D) {
+        g2D.setColor(Color.WHITE);
         g2D.drawString("fps:"+fps, 10, 10);
     }
 

@@ -64,11 +64,11 @@ public class GameState {
     }
 
     public void update() {
-        for (Entity u : entityArray) {
-            u.update();
-        }
         if (controller.isLeftClick) {
             player.moveTo(controller.mouseX, controller.mouseY);
+        }
+        for (Entity u : entityArray) {
+            u.update();
         }
     }
 

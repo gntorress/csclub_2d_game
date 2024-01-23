@@ -9,11 +9,12 @@ public class Player extends Entity{
 
     //TODO: GAMEPLAY
 
-    public Player() throws IOException {
+    public Player() {
         super();
-        image = ImageIO.read(getClass().getResourceAsStream("/textures/entities/player.png"));
+        setImage("player.png");
     }
     public Player(String name, int radius, int moveSpeed) {
         super(name, radius, moveSpeed);
+        setImage("player.png");
     }
 }

@@ -1,12 +1,15 @@
 package Entity;
 import Main.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class Entity {
     //name: the name of the entity (used for display)
     public String name;
 
+    //image: the sprite of the entity
     public BufferedImage image;
 
     //x, y: 2D coordinate location
@@ -36,8 +39,17 @@ public class Entity {
         this.targetY = y;
     }
 
-    public void setImage(){
-
+    public void setImage(String fileName) {
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/textures/" + fileName));
+        }catch(IOException e){
+            Logger.log(1, "FAILED TO FIND IMAGE: " + fileName);
+            try {
+                image = ImageIO.read(getClass().getResourceAsStream("/textures/default.png"));
+            } catch (IOException ex) {
+                Logger.log(1, "DEFAULT IMAGE LOST, PLS FIND");
+            }
+        }
     }
 
     public void moveTo(int X, int Y) {
