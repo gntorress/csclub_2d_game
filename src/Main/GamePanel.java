@@ -108,7 +108,8 @@ public class GamePanel extends JPanel {
     //drawUI(): draw game information, currently only FPS display
     private void drawUI(Graphics2D g2D) {
         g2D.setColor(Color.WHITE);
-        g2D.drawString("fps:"+fps, 10, 10);
+        g2D.setFont(g2D.getFont().deriveFont(Font.PLAIN, g2D.getFont().getSize() * RENDER_SCALE));
+        g2D.drawString("fps:"+fps, 10, 12*RENDER_SCALE);
     }
 
     //updateFPS: takes the time of the previous frame (in milliseconds)
