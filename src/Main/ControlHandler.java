@@ -23,17 +23,18 @@ public class ControlHandler implements KeyListener, MouseListener, MouseMotionLi
         //invoked when a key is pressed down, or when it's pressed repeatedly when held down
         //repeats are because of Windows! I cant fix it without replacing this controller
         //with something else. this is why i use booleans here, they cant add up
-        switch(e.getKeyChar()){
-            case 'w':
+
+        switch(e.getKeyCode()){
+            case 87:    //W
                 up = true;
                 break;
-            case 'a':
+            case 65:    //A
                 left = true;
                 break;
-            case 's':
+            case 83:    //S
                 down = true;
                 break;
-            case 'd':
+            case 68:    //D
                 right = true;
                 break;
         }
@@ -42,17 +43,17 @@ public class ControlHandler implements KeyListener, MouseListener, MouseMotionLi
     @Override
     public void keyReleased(KeyEvent e) {
         //invoked when a key is released
-        switch(e.getKeyChar()){
-            case 'w':
+        switch(e.getKeyCode()){
+            case 87:    //W
                 up = false;
                 break;
-            case 'a':
+            case 65:    //A
                 left = false;
                 break;
-            case 's':
+            case 83:    //S
                 down = false;
                 break;
-            case 'd':
+            case 68:    //D
                 right = false;
                 break;
         }
