@@ -7,12 +7,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class GameState {
 
     //controller: the input controller, same controller as the Game object
     public ControlHandler controller;
+
+    //panel: the game screen
+    private GamePanel panel;
 
     //entityArray: a list of all entities currently loaded
     public ArrayList<Entity> entityArray;
@@ -45,9 +49,10 @@ public class GameState {
 
         //create the player
         player = new Player(
+                this,
                 "Player",
                 16,
-                8
+                4
         );
 
         //add the player to the array
@@ -77,7 +82,9 @@ public class GameState {
                     //hacky trick to turn character into number!
 
                     int tileValue = line.charAt(j) - '0';
-                    map[i][j] = new Tile(tileValue);
+                    int x = j * GamePanel.TILE_SIZE * GamePanel.RENDER_SCALE;
+                    int y = i * GamePanel.TILE_SIZE * GamePanel.RENDER_SCALE;
+                    map[i][j] = new Tile(tileValue, x,y);
 
                     //since chars are stored as number values,
                     //subtracting the value of the char '0'
@@ -98,6 +105,9 @@ public class GameState {
     public void linkController(ControlHandler con) {
         controller = con;
     }
+    public void linkPanel(GamePanel pan){
+        panel = pan;
+    }
 
     //update(): ran once per frame, where all the game processing happens
     public void update() {
@@ -105,7 +115,7 @@ public class GameState {
         if (Main.CONTROL_TYPE == 1) {
             //MOUSE CONTROLS! player follows mouse clicks/drags
             if(controller.isLeftClick) {
-                player.moveTarget(controller.mouseX, controller.mouseY);
+                player.moveTarget(controller.mouseX - player.size, controller.mouseY - player.size);
             }
         }
         else if(Main.CONTROL_TYPE == 0) {
@@ -127,5 +137,21 @@ public class GameState {
     //getEntities(): returns the entity array
     public ArrayList<Entity> getEntities() {
         return entityArray;
+    }
+
+    public Tile tileAt(float x, float y) throws ArrayIndexOutOfBoundsException{
+        Tile t = null;
+        int tileX = (int) (x) / (GamePanel.TILE_SIZE * GamePanel.RENDER_SCALE);
+        int tileY = (int) (y) / (GamePanel.TILE_SIZE * GamePanel.RENDER_SCALE);
+        try{
+            t = map[tileY][tileX];
+        }catch(ArrayIndexOutOfBoundsException e){
+            Logger.log(1, "tileAt OUT OF BOUNDS");
+            return null;
+        }
+
+        //Logger.log(0, "tileAt called: " + x + "," + y + " -> " + tileX + "," + tileY + " hasCollision: " + t.hasCollision);
+
+        return t;
     }
 }

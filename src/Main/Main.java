@@ -12,6 +12,8 @@ public class Main {
         1: MOUSE CLICK movement
     */
     public static final int CONTROL_TYPE = 0;
+    public static final boolean DEBUG_HITBOXES = false;
+    public static final boolean DEBUG_NOCOLLIDE = false;
 
     public static void main(String[] args) {
         //create game object

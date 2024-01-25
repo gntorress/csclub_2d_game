@@ -6,6 +6,9 @@ public class Logger {
        much more easily. log() calls include a "importance" value,
        which changes the colors of the messages, and an "exit" boolean,
        which if true, crashes the game.
+
+       Yes. Java has its own built-in logger. It's probably great.
+       I felt like making my own. Just because. lol
      */
 
     //MINIMUM_IMPORTANCE: log calls with an importance under this will not be displayed

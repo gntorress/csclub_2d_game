@@ -11,11 +11,11 @@ import java.awt.image.BufferedImage;
 public class GamePanel extends JPanel {
     //TILE_SIZE: the size (in pixels) of every game tile.
     //currently, tiles are 32x32 pixels
-    private static final int TILE_SIZE = 32;
+    public static final int TILE_SIZE = 32;
 
     //EDGE_BORDER_THICKNESS: the thickness (in pixels) of the black border
     //around the edge of the map
-    private static final int EDGE_BORDER_THICKNESS = 16;
+    public static final int EDGE_BORDER_THICKNESS = 0;
 
     //RENDER_SCALE: a multiplier to all pixel values for rendering
     //at TILE_SIZE = 32, the final tiles will be rendered as 64x64 pixels on the screen
@@ -34,7 +34,7 @@ public class GamePanel extends JPanel {
         //initialize fps
         fps = -1;
 
-        //calculate width/height with TILE_SIZE, EDGE_BORDER_THICKNESS, and RENDER_SCALE
+        //calculate width/height with map size, TILE_SIZE, EDGE_BORDER_THICKNESS, and RENDER_SCALE
         int width = (state.mapWidth * TILE_SIZE + EDGE_BORDER_THICKNESS * 2) * RENDER_SCALE;
         int height = (state.mapHeight * TILE_SIZE + EDGE_BORDER_THICKNESS * 2) * RENDER_SCALE;
         //set the size of the game window to this width/height
@@ -74,6 +74,8 @@ public class GamePanel extends JPanel {
                 int imageY = (TILE_SIZE*i + EDGE_BORDER_THICKNESS);
                 transform.translate(imageX, imageY);
                 g2D.drawImage(image, transform, null);
+                g2D.setColor(map[i][j].hasCollision ? Color.RED : Color.GREEN);
+                if(Main.DEBUG_HITBOXES) g2D.draw(map[i][j].collider);
                 //g2D.setColor(map[i][j].color);
                 //g2D.fillRect(TILE_SIZE*j + EDGE_BORDER_THICKNESS, TILE_SIZE*i + EDGE_BORDER_THICKNESS, TILE_SIZE,TILE_SIZE);
             }
@@ -84,12 +86,22 @@ public class GamePanel extends JPanel {
     private void drawEntities(Graphics2D g2D){
         for(Entity u : state.getEntities()){
             BufferedImage image = u.image;
+
             AffineTransform transform = new AffineTransform();
+
             transform.scale(RENDER_SCALE,RENDER_SCALE);
-            int x = ((int)(u.x) - u.size) / RENDER_SCALE;
-            int y = ((int)(u.y) - u.size) / RENDER_SCALE;
+
+            int x = ((int)(u.x)) / RENDER_SCALE;
+            int y = ((int)(u.y)) / RENDER_SCALE;
             transform.translate(x, y);
+
             g2D.drawImage(image, transform, null);
+
+            g2D.setColor(Color.GREEN);
+            if(Main.DEBUG_HITBOXES) {
+                g2D.draw(u.collider);
+                g2D.drawString(u.x + "," + u.y, 10, 20);
+            }
         }
     }
 

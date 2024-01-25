@@ -38,6 +38,7 @@ public class Game implements Runnable {
 
         //initialize panel settings
         panel = new GamePanel(state);       //create the object
+        state.linkPanel(panel);             //link to the gamestate
             //setPreferredSize is used to set the window size, normally
             //i am setting the window size elsewhere, based on the map size
         //panel.setPreferredSize(new Dimension(Main.Main.WINDOW_WIDTH, Main.Main.WINDOW_HEIGHT));
@@ -121,7 +122,7 @@ public class Game implements Runnable {
                 //which we tell the program to just sleep through, until the next frame
                 double frameTimeMilli = frameTimeNano/1000000.0;
                 long sleepTime = (long)(millisecondsPerFrame - frameTimeMilli);
-                Thread.sleep(sleepTime);
+                Thread.sleep(Math.max(0,sleepTime));
                 //sleep() may be "interrupted" by other things, so we have to catch that
                 //InterruptedException, and just log that it happened (but continue running anyways)
             } catch (InterruptedException e) {
