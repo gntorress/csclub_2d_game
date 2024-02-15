@@ -1,10 +1,9 @@
 package Main;
 
 import Entity.*;
+import World.Map;
 import World.Tile;
-import World.TileType;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class GameState {
@@ -22,10 +21,7 @@ public class GameState {
     public Player player;
 
     //loadedMap: the currently loaded map, as a 2D array of Tile objects
-    public Tile[][] loadedMap;
-
-    //loadedTiles: the currently loaded tile information for the map, used when loading
-    public TileType[] loadedTiles;
+    public Map loadedMap;
 
     //TODO: dynamic map sizing
     //mapHeight, mapWidth: the dimensions of the currently loaded map
@@ -36,7 +32,8 @@ public class GameState {
         //we cannot create the map until we read the file
         loadedMap = null;
 
-        //load the map TODO: map selection
+        //load the map
+        //TODO: map selection
         loadedMap = FileHandler.loadMap("default");
 
         //create the entity array
@@ -54,19 +51,6 @@ public class GameState {
         entityArray.add(player);
     }
 
-    //TODO: map selection
-    //loadMap(): reads text files for maps and loads them into the game
-
-    private void invalidMap(){
-        Logger.log(2, "MAP FILE INVALID", true);
-    }
-    private void validateMap(){
-        for(Tile[] row : loadedMap){
-            for(Tile tile : row){
-                if(tile == null) invalidMap();
-            }
-        }
-    }
 
     //linkController(): binds the controller to the GameState object
     public void linkController(ControlHandler con) {
@@ -87,8 +71,8 @@ public class GameState {
     }
 
     //getMap(): returns the loaded map
-    public Tile[][] getMap() {
-        return loadedMap;
+    public Tile[][] getMapLayout() {
+        return loadedMap.layout;
     }
 
     //getEntities(): returns the entity array
@@ -102,7 +86,7 @@ public class GameState {
         int tileX = (int) ((x) / (GamePanel.TILE_SIZE));
         int tileY = (int) ((y) / (GamePanel.TILE_SIZE));
         try{
-            t = loadedMap[tileY][tileX];
+            t = getMapLayout()[tileY][tileX];
         }catch(ArrayIndexOutOfBoundsException e){
             t = null;
         }

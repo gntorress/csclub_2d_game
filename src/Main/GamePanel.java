@@ -112,7 +112,7 @@ public class GamePanel extends JPanel {
     //drawMap(): draws the background tiles
     private void drawMap(Graphics2D g2D){
         //grab the map's 2D tile array
-        Tile[][] map = state.getMap();
+        Tile[][] map = state.getMapLayout();
 
         int width = map[0].length;
         int height = map.length;
