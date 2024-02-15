@@ -3,8 +3,6 @@
 
 CONTROLS:
 
-WASD for movement
-
-IJKL for camera panning
-
-SPACE to snap camera to player
+WASD for movement<br>
+IJKL for camera panning<br>
+SPACE to snap camera to player<br>
