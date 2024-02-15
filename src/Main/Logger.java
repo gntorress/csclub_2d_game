@@ -19,6 +19,7 @@ public class Logger {
     public static final String INFO_COLOR = "\033[0m";          //white
     public static final String WARNING_COLOR = "\033[0;33m";    //yellow
     public static final String FATAL_COLOR = "\033[0;31m";      //red
+    private static final String FATAL_MESSAGE = "FATAL ERROR, SHUTTING DOWN";
 
     //IMPORTANCE VALUES:
     //0: info log
@@ -38,7 +39,10 @@ public class Logger {
                 System.out.println(FATAL_COLOR + message + RESET_COLOR);
                 break;
         }
-        if(exit) System.exit(-1);
+        if(exit){
+            System.out.println(FATAL_COLOR + FATAL_MESSAGE + RESET_COLOR);
+            System.exit(-1);
+        }
     }
 
     //if exit boolean is ommited, assume false

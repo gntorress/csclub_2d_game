@@ -13,6 +13,9 @@ public class ControlHandler implements KeyListener, MouseListener, MouseMotionLi
     //DIRECTIONAL (WASD) CONTROLS
     public boolean up, left, down, right;
 
+    //CAMERA CONTROLS
+    public boolean upCam, leftCam, downCam, rightCam, resetCam;
+
     @Override
     public void keyTyped(KeyEvent e) {
         //invoked when a key is fully pressed *and* released
@@ -24,18 +27,35 @@ public class ControlHandler implements KeyListener, MouseListener, MouseMotionLi
         //repeats are because of Windows! I cant fix it without replacing this controller
         //with something else. this is why i use booleans here, they cant add up
 
+        if(Main.DEBUG_PRINT_KEYCODES) System.out.println(e.getKeyCode());
+
         switch(e.getKeyCode()){
-            case 87:    //W
+            case KeyEvent.VK_W:    //W
                 up = true;
                 break;
-            case 65:    //A
+            case KeyEvent.VK_A:    //A
                 left = true;
                 break;
-            case 83:    //S
+            case KeyEvent.VK_S:    //S
                 down = true;
                 break;
-            case 68:    //D
+            case KeyEvent.VK_D:    //D
                 right = true;
+                break;
+            case KeyEvent.VK_I:    //I
+                upCam = true;
+                break;
+            case KeyEvent.VK_J:    //J
+                leftCam = true;
+                break;
+            case KeyEvent.VK_K:    //K
+                downCam = true;
+                break;
+            case KeyEvent.VK_L:    //L
+                rightCam = true;
+                break;
+            case KeyEvent.VK_SPACE://SPACE
+                resetCam = true;
                 break;
         }
     }
@@ -44,17 +64,32 @@ public class ControlHandler implements KeyListener, MouseListener, MouseMotionLi
     public void keyReleased(KeyEvent e) {
         //invoked when a key is released
         switch(e.getKeyCode()){
-            case 87:    //W
+            case KeyEvent.VK_W:    //W
                 up = false;
                 break;
-            case 65:    //A
+            case KeyEvent.VK_A:    //A
                 left = false;
                 break;
-            case 83:    //S
+            case KeyEvent.VK_S:    //S
                 down = false;
                 break;
-            case 68:    //D
+            case KeyEvent.VK_D:    //D
                 right = false;
+                break;
+            case KeyEvent.VK_I:    //I
+                upCam = false;
+                break;
+            case KeyEvent.VK_J:    //J
+                leftCam = false;
+                break;
+            case KeyEvent.VK_K:    //K
+                downCam = false;
+                break;
+            case KeyEvent.VK_L:    //L
+                rightCam = false;
+                break;
+            case KeyEvent.VK_SPACE://SPACE
+                resetCam = false;
                 break;
         }
     }

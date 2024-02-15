@@ -39,16 +39,6 @@ public class Game implements Runnable {
         //initialize panel settings
         panel = new GamePanel(state);       //create the object
         state.linkPanel(panel);             //link to the gamestate
-            //setPreferredSize is used to set the window size, normally
-            //i am setting the window size elsewhere, based on the map size
-        //panel.setPreferredSize(new Dimension(Main.Main.WINDOW_WIDTH, Main.Main.WINDOW_HEIGHT));
-        panel.setBackground(Color.BLACK);   //black background
-            //DoubleBuffering lets the panel render invisibly,
-            //and then swap the current image for the new one
-            //(only updates the picture once its fully rendered)
-        panel.setDoubleBuffered(true);
-            //if the panel isnt focused, we cant get key input from it, so let it be focusable
-        panel.setFocusable(true);
 
         //add the panel to the window
         window.add(panel);
@@ -64,6 +54,8 @@ public class Game implements Runnable {
         panel.addKeyListener(controller);
         panel.addMouseListener(controller);
         panel.addMouseMotionListener(controller);
+
+        panel.requestFocus();
     }// END Game CONSTRUCTOR
 
     //start() - initializes the thread that runs the game, and starts it
@@ -105,7 +97,7 @@ public class Game implements Runnable {
             gameUpdateTimeNano = System.nanoTime();
 
             //update the screen
-            panel.repaint();
+            panel.update();
 
             //save screen update end time
             frameEndTimeNano = System.nanoTime();

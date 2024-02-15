@@ -14,6 +14,7 @@ public class Main {
     public static final int CONTROL_TYPE = 0;
     public static final boolean DEBUG_HITBOXES = false;
     public static final boolean DEBUG_NOCOLLIDE = false;
+    public static final boolean DEBUG_PRINT_KEYCODES = false;
 
     public static void main(String[] args) {
         //create game object

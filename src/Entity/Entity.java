@@ -24,11 +24,11 @@ public class Entity {
     //targetX, targetY: the 2D coordinate to travel towards
     public float targetX, targetY;
 
-    //size: render/collision length/width, assumed to be square TODO: COLLISION
+    //size: render/collision length/width, assumed to be square
     public int size;
 
     //moveSpeed: distance traveled per update() call (per frame)
-    public int moveSpeed;
+    public float moveSpeed;
 
     //collider: used for checking collision (the "hitbox") TODO: IMPLEMENT
     public Rectangle2D collider;
@@ -37,42 +37,32 @@ public class Entity {
     public boolean hasCollision;
 
     //CONSTRUCTORS
-    public Entity(GameState _game) {
-        game = _game;
-
-        //TODO: set spawn point somewhere else
-        x = 128;
-        y = 128;
+    public Entity(){
+        x = 0;
+        y = 0;
         targetX = x;
         targetY = y;
         hasCollision = true;
     }
-    public Entity(GameState game, String name, int size, int moveSpeed) {
-        this(game);
+    public Entity(String name, int size, int moveSpeed) {
+        this();
 
         this.name = name;
         this.size = size;
-        this.moveSpeed = moveSpeed * GamePanel.RENDER_SCALE;
+        this.moveSpeed = moveSpeed;
 
-        collider = new Rectangle2D.Float(x, y, size * GamePanel.RENDER_SCALE, size * GamePanel.RENDER_SCALE);
+        collider = new Rectangle2D.Float(x, y, size, size);
+    }
+
+    //linkGameState(): links every entity globally to the GameState object
+    public void linkGameState(GameState game){
+        Entity.game = game;
     }
 
     //setImage(): takes the name of a file in the textures folder
     //and loads that into the entity's image
     public void setImage(String fileName) {
-        try {
-                //try to find it
-            image = ImageIO.read(getClass().getResourceAsStream("/textures/" + fileName));
-        }catch(IOException e){
-                //if it failed, log it,
-            Logger.log(1, "FAILED TO FIND IMAGE: " + fileName);
-                //and then get the default image instead
-            try {
-                image = ImageIO.read(getClass().getResourceAsStream("/textures/default.png"));
-            } catch (IOException ex) {
-                Logger.log(1, "DEFAULT IMAGE LOST, PLS FIND");
-            }
-        }
+        image = FileHandler.loadImage(fileName);
     }
 
     //moveTarget(): sets the X and Y world coordinates that the entity will move towards automatically
@@ -80,26 +70,21 @@ public class Entity {
         targetX = X;
         targetY = Y;
     }
-    //moveVector(): moveTarget(), but relative to the entity itself (directional/WASD controls)
-    public void moveVector(float X, float Y){
-        targetX = x + moveSpeed * X * 2;
-        targetY = y + moveSpeed * Y * 2;
-    }
 
-    //moveDirections: turns direction booleans (from ControlHandler) into x/y for moveVector();
-    public void moveDirections(boolean up, boolean left, boolean down, boolean right) {
-        float x = 0, y = 0;
-        if(up) y -= 1;
-        if(left) x -= 1;
-        if(down) y += 1;
-        if(right) x += 1;
-        moveVector(x,y);
+    //moveVector(): similar to moveTarget(), but relative to the entity itself (directional/WASD controls)
+    public void moveVector(float X, float Y){
+        targetX = this.x + X;
+        targetY = this.y + Y;
     }
 
     //update(): called every frame, handles entity logic/movement
     public void update() {
-        //MOVEMENT:
+        updatePosition();
 
+    }
+
+    //updatePosition(): handles movement, towards targetX & targetY
+    protected void updatePosition(){
         //deltaX, deltaY: the target to move towards, relative to the entity
         float deltaX = targetX - x;
         float deltaY = targetY - y;
@@ -114,8 +99,9 @@ public class Entity {
                 //only really used for mouse movement!
                 //prevents glitchy rapid back-and-forth,
                 //when at the target location but each step overshoots
-                x = targetX;
-                y = targetY;
+                //TODO: fix clipping through walls with this
+                if(canMoveHorizontal(x - targetX)) x = targetX;
+                if(canMoveVertical(y - targetY)) y = targetY;
             } else {
                 //otherwise, move towards target
 
@@ -123,113 +109,97 @@ public class Entity {
                 float moveX = (deltaX / vectorMagnitude) * moveSpeed;
                 float moveY = (deltaY / vectorMagnitude) * moveSpeed;
 
-                //TODO: COLLISION, MIGHT NEED TO REWORK MOVEMENT ENTIRELY LOL
+                float distanceTraveled = 0;
+                float remainingDistance = moveX;
+                while(remainingDistance != 0 && distanceTraveled - moveX != 0){
+                    if(canMoveHorizontal(remainingDistance)){
+                        x += remainingDistance;
+                        distanceTraveled += remainingDistance;
+                    }
+                    remainingDistance = remainingDistance / 2;
+                }
 
-                //if(this.canMove(moveX, moveY)) {
-                //move according to movement speed value
-                x += moveX;
-                y += moveY;
-                //}
+                distanceTraveled = 0;
+                remainingDistance = moveY;
+                while(remainingDistance != 0 && distanceTraveled - moveY != 0){
+                    if(canMoveVertical(remainingDistance) ){
+                        y += remainingDistance;
+                        distanceTraveled += remainingDistance;
+                    }
+                    remainingDistance = remainingDistance / 2;
+                }
             }
-            collider.setRect(x, y, collider.getWidth(), collider.getHeight());
         }
+        //update collider to new position
+        collider.setRect(x, y, collider.getWidth(), collider.getHeight());
     }
 
+    //canMoveHorizontal: checks for collision and returns if we can move or not
+    //parameter moveX: the X component of movement to check for
     protected boolean canMoveHorizontal(float moveX) {
-        if(Main.DEBUG_NOCOLLIDE) return true;
+        //if we have no collision, we can always move!
+        if(!hasCollision) return true;
 
+        //need to check two tiles, one for each "shoulder" of the player.
         Tile t1;
         Tile t2;
 
-        float x1 = this.x;
-        float x2 = this.x + (size-1) * GamePanel.RENDER_SCALE;
+        float x = this.x;
         float y1 = this.y;
-        float y2 = this.y + (size-1) * GamePanel.RENDER_SCALE;
+        float y2 = this.y + this.size;
 
+        //if moveX < 0, we are moving left
         if(moveX < 0) {
-            t1 = game.tileAt(x1 - moveSpeed, y1);
-            t2 = game.tileAt(x1 - moveSpeed, y2);
-        }else{
-            t1 = game.tileAt(x2 + moveSpeed, y1);
-            t2 = game.tileAt(x2 + moveSpeed, y2);
+            t1 = game.tileAt(x + moveX, y1);
+            t2 = game.tileAt(x + moveX, y2);
         }
-        return (!t1.hasCollision && !t2.hasCollision) || !this.hasCollision;
+        //otherwise, moving right
+        else{
+            x = x + this.size;
+
+            t1 = game.tileAt(x + moveX, y1);
+            t2 = game.tileAt(x + moveX, y2);
+        }
+
+        //we can move so long as neither "shoulder" is colliding with a tile
+        //(or if we have no collision)
+        //if the tiles are null, we treat them as having solid collision
+        if(t1 == null || t2 == null) return false;
+        boolean collide = t1.hasCollision || t2.hasCollision;
+        return !collide;
     }
 
+    //canMoveVertical: checks for collision and returns if we can move or not
+    //parameter moveY: the Y component of movement to check for
     protected boolean canMoveVertical(float moveY) {
-        if(Main.DEBUG_NOCOLLIDE) return true;
+        //if we have no collision, we can always move!
+        if(!hasCollision) return true;
 
+        //need to check two tiles, one for each "shoulder" of the player.
         Tile t1;
         Tile t2;
+
+        float y = this.y;
         float x1 = this.x;
-        float x2 = this.x + (size-1) * GamePanel.RENDER_SCALE;
-        float y1 = this.y;
-        float y2 = this.y + (size-1) * GamePanel.RENDER_SCALE;
+        float x2 = this.x + this.size;
+
+        //if moveY < 0, we are moving up
         if(moveY < 0) {
-            t1 = game.tileAt(x1, y1 - moveSpeed);
-            t2 = game.tileAt(x2, y1 - moveSpeed);
-        }else{
-            t1 = game.tileAt(x1, y2 + moveSpeed);
-            t2 = game.tileAt(x2, y2 + moveSpeed);
+            t1 = game.tileAt(x1, y + moveY);
+            t2 = game.tileAt(x2, y + moveY);
         }
-        return (!t1.hasCollision && !t2.hasCollision) || !this.hasCollision;
-    }
-
-    protected boolean canMove(float X, float Y){
-        //this does NOT WORK, IM STRUGGLING OK
-
-        //get the tile that the entity is moving into
-        float X2 = X + this.size;
-        float Y2 = Y + this.size;
-        Tile t = game.tileAt(this.x + X, this.y + Y);
-        Tile t2 = game.tileAt(this.x + X2, this.y + Y2);
-
-        if(t == null || t2 == null) return false;
-
-        /*
-        //move the collision box
-        this.collider.setRect(this.x + x, this.y + y, this.collider.getWidth(), this.collider.getHeight());
-
-        //check for intersection
-        boolean intersection = this.collider.intersects(t.collider) || t.hasCollision;
-        Logger.log(0, "INTERSECTION?: " + intersection);
-
-        //if intersection, move the collision box back (box stays in place if movement successful
-        if(intersection) this.collider.setRect(this.x, this.y, this.collider.getWidth(), this.collider.getHeight());
-
-        //return true if no intersection
-        return !intersection;
-         */
-        return (!t.hasCollision && !t2.hasCollision) || !this.hasCollision;
-    }
-    protected boolean canMove(String direction){
-        Tile t1;
-        Tile t2;
-        float x1 = this.x;
-        float x2 = this.x + (size-1) * GamePanel.RENDER_SCALE;
-        float y1 = this.y;
-        float y2 = this.y + (size-1) * GamePanel.RENDER_SCALE;
-        switch(direction){
-            case "up":
-                t1 = game.tileAt(x1, y1 - moveSpeed);
-                t2 = game.tileAt(x2, y1 - moveSpeed);
-                break;
-            case "left":
-                t1 = game.tileAt(x1 - moveSpeed, y1);
-                t2 = game.tileAt(x1 - moveSpeed, y2);
-                break;
-            case "down":
-                t1 = game.tileAt(x1, y2 + moveSpeed);
-                t2 = game.tileAt(x2, y2 + moveSpeed);
-                break;
-            case "right":
-                t1 = game.tileAt(x2 + moveSpeed, y1);
-                t2 = game.tileAt(x2 + moveSpeed, y2);
-                break;
-            default:
-                return false;
+        //otherwise, moving down
+        else{
+            y = y + this.size;
+            t1 = game.tileAt(x1, y + moveY);
+            t2 = game.tileAt(x2, y + moveY);
         }
-        if(Main.DEBUG_NOCOLLIDE) return true;
-        return (!t1.hasCollision && !t2.hasCollision) || !this.hasCollision;
+
+        //we can move so long as neither "shoulder" is colliding with a tile
+        //(or if we have no collision)
+        //if the tiles are null, we treat them as having solid collision
+        if(t1 == null || t2 == null) return false;
+        boolean collide = t1.hasCollision || t2.hasCollision;
+        return !collide;
     }
 }
