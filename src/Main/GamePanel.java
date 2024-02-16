@@ -29,6 +29,7 @@ public class GamePanel extends JPanel {
     //if it encounters an error accessing a tile (i.e. out of bounds)
     //TODO: better empty space background, or restrict camera to only inbounds?
     public static final Tile DEFAULT_TILE = new Tile(null, -1, -1);
+    private static final BasicStroke HITBOX_STROKE = new BasicStroke(RENDER_SCALE);
 
     //state: the GameState object. necessary for communication between state and panel
     private GameState state;
@@ -135,7 +136,7 @@ public class GamePanel extends JPanel {
                 //if out of bounds, it grabs the default tile image instead
                 try {
                     image = map[i][j].image;
-                }catch(ArrayIndexOutOfBoundsException e){
+                }catch(ArrayIndexOutOfBoundsException | NullPointerException e){
                     image = DEFAULT_TILE.image;
                 }
 
@@ -160,9 +161,12 @@ public class GamePanel extends JPanel {
                 if(Main.DEBUG_HITBOXES) {
                     try {
                         g2D.setColor(map[i][j].hasCollision ? Color.RED : Color.GREEN);
+                        g2D.setStroke(HITBOX_STROKE);
                         Rectangle2D box = map[i][j].collider;
-                        g2D.drawRect((int)box.getX() + RENDER_SCALE, (int)box.getY() + RENDER_SCALE, (int)box.getWidth() - RENDER_SCALE, (int)box.getHeight() - RENDER_SCALE);
-                        g2D.draw(map[i][j].collider);
+                        int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
+                        int boxY = (int)(box.getY() - cameraY / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
+                        int boxSize = (int)(box.getWidth()) * RENDER_SCALE - (RENDER_SCALE);
+                        g2D.drawRect(boxX, boxY, boxSize, boxSize);
                     }catch(ArrayIndexOutOfBoundsException e){
                         //do nothing
                     }
@@ -173,24 +177,28 @@ public class GamePanel extends JPanel {
 
     //drawEntities(): draws all entities loaded in the GameState object
     private void drawEntities(Graphics2D g2D){
-        for(Entity u : state.getEntities()){
-            BufferedImage image = u.image;
+        for(Entity ent : state.getEntities()){
+            BufferedImage image = ent.image;
 
             AffineTransform transform = new AffineTransform();
 
             transform.scale(RENDER_SCALE,RENDER_SCALE);
 
-            int x = ((int)(u.x));
-            int y = ((int)(u.y));
+            int x = ((int)(ent.x));
+            int y = ((int)(ent.y));
             transform.translate(x - cameraX / RENDER_SCALE, y - cameraY / RENDER_SCALE);
 
             g2D.drawImage(image, transform, null);
 
             if(Main.DEBUG_HITBOXES) {
                 g2D.setColor(Color.GREEN);
-                g2D.fillOval(x-4,y-4,8,8);
-                g2D.draw(u.collider);
-                g2D.drawString(u.x + "," + u.y, 128, 20);
+                g2D.fillOval((x - cameraX / RENDER_SCALE) * RENDER_SCALE,(y - cameraY / RENDER_SCALE) * RENDER_SCALE,2*RENDER_SCALE,2*RENDER_SCALE);
+                Rectangle2D box = ent.collider;
+                int boxX = (int)(box.getX() - cameraX / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
+                int boxY = (int)(box.getY() - cameraY / RENDER_SCALE) * RENDER_SCALE + (RENDER_SCALE/2);
+                int boxSize = (int)(box.getWidth()) * RENDER_SCALE - (RENDER_SCALE);
+                g2D.drawRect(boxX, boxY, boxSize, boxSize);
+                g2D.drawString(ent.x + "," + ent.y, 128, 20);
             }
         }
     }

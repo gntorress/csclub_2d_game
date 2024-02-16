@@ -50,5 +50,10 @@ public class Logger {
         log(category, message, false);
     }
     //if called with an Exception object, just use that object's message
-    public static void log(int category, Exception exception){ log(category, exception.getMessage(), false);}
+    public static void log(int category, Exception exception){
+        log(category, exception.getMessage(), true);
+    }
+    public static void log(int category, Exception exception, boolean exit){
+        log(category, exception.getMessage(), exit);
+    }
 }
