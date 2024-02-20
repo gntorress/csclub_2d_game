@@ -15,5 +15,4 @@ TODO:
 - - ill figure it out
 - dynamic tiles? interactable tiles?
 - should tiles be 100% script based? or engine based?
-- - more complex tiles may end up needing
-- - engine hardcoding
+- - more complex tiles may end up needing engine hardcoding

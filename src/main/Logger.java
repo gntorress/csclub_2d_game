@@ -1,4 +1,4 @@
-package Main;
+package main;
 
 public class Logger {
     /* Logger is a super useful development tool

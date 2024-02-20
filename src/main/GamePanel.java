@@ -1,7 +1,7 @@
-package Main;
+package main;
 
-import Entity.*;
-import World.Tile;
+import main.entities.*;
+import main.world.Tile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +46,7 @@ public class GamePanel extends JPanel {
 
     //cameraX, cameraY, cameraMoveSpeed:
     //these variables handle the camera location
-    //and movement, in the world.
+    //and movement, in the main.world.
     //TODO: camera object?
     //^probably not?
     public int cameraX;

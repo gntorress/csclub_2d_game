@@ -1,4 +1,4 @@
-package World;
+package main.world;
 
 import java.util.Arrays;
 import java.util.Objects;

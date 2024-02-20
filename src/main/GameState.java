@@ -1,8 +1,8 @@
-package Main;
+package main;
 
-import Entity.*;
-import World.Map;
-import World.Tile;
+import main.entities.*;
+import main.world.Map;
+import main.world.Tile;
 
 import java.util.ArrayList;
 

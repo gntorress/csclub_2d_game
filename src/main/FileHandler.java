@@ -1,27 +1,19 @@
-package Main;
+package main;
 
-import World.Map;
-import World.Tile;
-import World.TileType;
+import main.world.Map;
+import main.world.Tile;
+import main.world.TileType;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-//TODO: Files.readAllLines()
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
 
 public class FileHandler {
     //TEXTURES_FOLDER: what folder to look into for textures, in /src/
-    public static final String TEXTURES_FOLDER = "/textures/";
+    public static final String TEXTURES_FOLDER = "textures/";
 
     //MAPS_FOLDER: what folder to look into for maps, in /src/
-    public static final String MAPS_FOLDER = "/world/maps/";
+    public static final String MAPS_FOLDER = "maps/";
 
     //TEXTURE_FILE_EXTENSION: file extension used for texture files
     public static final String TEXTURE_FILE_EXTENSION = ".png";
@@ -38,41 +30,77 @@ public class FileHandler {
     //loadImage(): takes in a file name (without extension)
     //returns a BufferedImage object of that file, for use in rendering
     public static BufferedImage loadImage(String fileName) {
+        //init image and file input variables
         BufferedImage image = null;
+        InputStream inputStream = null;
+
+        //get the path to the file
+        String filePath = TEXTURES_FOLDER + fileName + TEXTURE_FILE_EXTENSION;
+
+        //try to read the image
         try {
-            image = ImageIO.read(FileHandler.class.getResourceAsStream(TEXTURES_FOLDER + fileName + TEXTURE_FILE_EXTENSION));
-        } catch (IOException | IllegalArgumentException e) {
-            Logger.log(1, "IMAGE: " + fileName + " NOT FOUND");
-            try {
-                image = ImageIO.read(FileHandler.class.getResourceAsStream(TEXTURES_FOLDER + DEFAULT_TEXTURE + TEXTURE_FILE_EXTENSION));
-            } catch (IOException | IllegalArgumentException f) {
-                Logger.log(2, "DEFAULT IMAGE MISSING", true);
+            //get the input stream
+            inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+
+            //if its null, it failed to load
+            if (inputStream != null) {
+                //if it's not null, read the image
+                image = ImageIO.read(inputStream);
+            }else{
+                Logger.log(2, "FAILED TO FIND IMAGE AT " + filePath);
             }
         }
+        //if it fails, the image isnt found
+        catch (IOException e) {
+            //log this
+            Logger.log(1, "IMAGE: " + fileName + " NOT FOUND");
+
+            //then try to get the default image instead
+            try {
+                //get the file
+                filePath = TEXTURES_FOLDER + DEFAULT_TEXTURE + TEXTURE_FILE_EXTENSION;
+                inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+
+                //check if it loaded
+                assert inputStream != null;
+                image = ImageIO.read(inputStream);
+            }
+            //if *that* fails, the default image isnt there, which is really annoying. so i crash
+            catch (IOException | AssertionError f) {
+                Logger.log(2, "DEFAULT IMAGE MISSING, PLS FIX", true);
+            }
+        }
+
+        //return the loaded image
         return image;
     }
 
     //loadMap(): takes in the name of a map file (without extension)
     //returns a 2D array of tiles, to be stored in GameState
-    public static Map loadMap(String mapName) {
+    public static Map loadMap(String fileName) {
         //initialize to invalid values, so if something is out of order, we know
         Map outputMap = new Map();
         int mapWidth = -1;
         int mapHeight = -1;
 
-        //inputStream: loads our map .txt file
-        InputStream inputStream = FileHandler.class.getResourceAsStream(MAPS_FOLDER + mapName + MAP_FILE_EXTENSION);
+        //get the path to the map file
+        String filePath = MAPS_FOLDER + fileName + MAP_FILE_EXTENSION;
 
-        //bufferedReader: reads the file loaded by inputStream
-        //if the map is not found, inputStream is null, so the program crashes
-        //TODO: Files.readAllLines();?
+        //inputStream: loads our map .txt file
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+
+        //bufferedReader: reads the file
         BufferedReader bufferedReader = null;
-        try{
+        if (inputStream != null) {
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        }catch(NullPointerException e){
-            Logger.log(2, "MAP NOT FOUND: " + mapName, true);
+        }else{
+            //if its null, we failed to find the file
+            Logger.log(2, "FAILED TO FIND MAP AT " + filePath, true);
         }
-        assert(bufferedReader != null);
+        assert bufferedReader != null;
+
+        //lines: an array of all the lines in the file
+        String[] lines = bufferedReader.lines().toArray(String[]::new);
 
         //line: the String value read for the current line
         String line;
@@ -80,29 +108,16 @@ public class FileHandler {
         //lineNumber: keeps track of what file line we are on
         int lineNumber = 0;
 
-        //loop:
-        while(true) {
-            //if the reader is not ready, we are out of lines to read, so exit
-            try {
-                if (!bufferedReader.ready()) break;
-            } catch (IOException e) {
-                Logger.log(2,e);
-            }
+        int lineCount = lines.length;
+
+        //loop until out lines in file:
+        while(lineNumber < lineCount) {
 
             //reset line to null
             line = null;
 
-            //grab the next line
-            //TODO: readAll()? may be better
-            try {
-                line = bufferedReader.readLine();
-            } catch (IOException e) {
-                Logger.log(2,e.getMessage() + " AT LINE " + lineNumber);
-            }
-            lineNumber++;
-
-            //if no line is grabbed (IOException above), skip
-            if(line == null) continue;
+            //grab the next current line (and increment the count)
+            line = lines[lineNumber++];
 
             //this if-else block checks for the different data prefixes
             //if the
@@ -136,13 +151,8 @@ public class FileHandler {
 
                 //for however many tiles we expect to see,
                 for (int i = 0; i < numberOfTiles; i++) {
-                    //read the next line
-                    try {
-                        line = bufferedReader.readLine();
-                    } catch (IOException e) {
-                        Logger.log(2,e.getMessage() + " AT LINE " + lineNumber);
-                    }
-                    lineNumber++;
+                    //grab the next current line (and increment the count)
+                    line = lines[lineNumber++];
 
                     //if we find a blank line, assume that the tile data ended
                     if(line.isBlank()){
@@ -184,13 +194,8 @@ public class FileHandler {
                 //loop through the tile data lines
                 for (int i = 0; i < mapHeight; i++) {
 
-                    //grab the line
-                    try {
-                        line = bufferedReader.readLine();
-                    } catch (IOException e) {
-                        Logger.log(2,e.getMessage() + " AT LINE " + lineNumber);
-                    }
-                    lineNumber++;
+                    //grab the next current line (and increment the count)
+                    line = lines[lineNumber++];
 
                     //split it by spaces
                     String[] row = null;

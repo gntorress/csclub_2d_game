@@ -1,6 +1,6 @@
-package Entity;
-import Main.*;
-import World.Tile;
+package main.entities;
+import main.*;
+import main.world.Tile;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -62,7 +62,7 @@ public class Entity {
         image = FileHandler.loadImage(fileName);
     }
 
-    //moveTarget(): sets the X and Y world coordinates that the entity will move towards automatically
+    //moveTarget(): sets the X and Y main.world coordinates that the entity will move towards automatically
     public void moveTarget(float X, float Y) {
         targetX = X;
         targetY = Y;

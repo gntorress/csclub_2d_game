@@ -1,7 +1,6 @@
-package Main;
+package main;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class Game implements Runnable {
 

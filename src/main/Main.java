@@ -1,4 +1,4 @@
-package Main;
+package main;
 
 public class Main {
     //TITLE: the name of the game, shown in the bar at the top of the window

@@ -1,7 +1,7 @@
-package World;
+package main.world;
 
-import Main.FileHandler;
-import Main.GamePanel;
+import main.FileHandler;
+import main.GamePanel;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -10,7 +10,7 @@ public class Tile {
     //type: the integer type, to keep track of what tiles are what
     public TileType type;
 
-    //x, y: 2D coordinates in world space
+    //x, y: 2D coordinates in main.world space
     public int x;
     public int y;
 

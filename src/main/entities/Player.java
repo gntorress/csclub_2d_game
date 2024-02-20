@@ -1,6 +1,6 @@
-package Entity;
+package main.entities;
 
-import Main.*;
+import main.*;
 
 public class Player extends Entity{
 

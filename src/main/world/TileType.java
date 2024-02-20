@@ -1,6 +1,6 @@
-package World;
+package main.world;
 
-import Main.FileHandler;
+import main.FileHandler;
 
 public class TileType {
     //TileType objects hold information about currently loaded tiles.
