@@ -2,11 +2,8 @@ package Entity;
 import Main.*;
 import World.Tile;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class Entity {
     //game: the GameState object, so the entity can interact with other things
@@ -30,7 +27,7 @@ public class Entity {
     //moveSpeed: distance traveled per update() call (per frame)
     public float moveSpeed;
 
-    //collider: used for checking collision (the "hitbox") TODO: IMPLEMENT
+    //collider: used for checking collision (the "hitbox") TODO: IMPLEMENT, USE FOR ENTITY/FIELD COLLISION
     public Rectangle2D collider;
 
     //hasCollision: if false, ignores collision
@@ -79,8 +76,11 @@ public class Entity {
 
     //update(): called every frame, handles entity logic/movement
     public void update() {
+        //move
         updatePosition();
 
+        //update collider position
+        collider.setRect(x, y, this.size, this.size);
     }
 
     //updatePosition(): handles movement, towards targetX & targetY
@@ -88,7 +88,8 @@ public class Entity {
         //deltaX, deltaY: the target to move towards, relative to the entity
         float deltaX = targetX - x;
         float deltaY = targetY - y;
-        //so long as there is distance to move still,
+
+        //so long as there is distance to move still, we move.
         if (deltaX != 0 || deltaY != 0) {
             //use pythagoras to get distance to target point
             float vectorMagnitude = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -130,6 +131,7 @@ public class Entity {
                 }
             }
         }
+
         //update collider to new position
         collider.setRect(x, y, collider.getWidth(), collider.getHeight());
     }
@@ -149,20 +151,16 @@ public class Entity {
         float y2 = this.y + this.size;
 
         //if moveX < 0, we are moving left
-        if(moveX < 0) {
-            t1 = game.tileAt(x + moveX, y1);
-            t2 = game.tileAt(x + moveX, y2);
-        }
-        //otherwise, moving right
-        else{
+        //if we are moving right, we check from the right edge
+        //(this.x is the left edge)
+        if (!(moveX < 0)) {
             x = x + this.size;
 
-            t1 = game.tileAt(x + moveX, y1);
-            t2 = game.tileAt(x + moveX, y2);
         }
+        t1 = game.tileAt(x + moveX, y1);
+        t2 = game.tileAt(x + moveX, y2);
 
         //we can move so long as neither "shoulder" is colliding with a tile
-        //(or if we have no collision)
         //if the tiles are null, we treat them as having solid collision
         if(t1 == null || t2 == null) return false;
         boolean collide = t1.hasCollision || t2.hasCollision;
@@ -184,19 +182,15 @@ public class Entity {
         float x2 = this.x + this.size;
 
         //if moveY < 0, we are moving up
-        if(moveY < 0) {
-            t1 = game.tileAt(x1, y + moveY);
-            t2 = game.tileAt(x2, y + moveY);
-        }
-        //otherwise, moving down
-        else{
+        //if we are moving down, we check from the bottom edge
+        //(this.y is the top edge)
+        if (!(moveY < 0)) {
             y = y + this.size;
-            t1 = game.tileAt(x1, y + moveY);
-            t2 = game.tileAt(x2, y + moveY);
         }
+        t1 = game.tileAt(x1, y + moveY);
+        t2 = game.tileAt(x2, y + moveY);
 
         //we can move so long as neither "shoulder" is colliding with a tile
-        //(or if we have no collision)
         //if the tiles are null, we treat them as having solid collision
         if(t1 == null || t2 == null) return false;
         boolean collide = t1.hasCollision || t2.hasCollision;

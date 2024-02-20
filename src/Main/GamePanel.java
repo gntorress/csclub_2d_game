@@ -10,6 +10,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class GamePanel extends JPanel {
+    //state: the GameState object. necessary for communication between state and panel
+    private final GameState state;
+
     //TILE_SIZE: the size (in pixels) of every game tile.
     //currently, tiles are 32x32 pixels
     public static final int TILE_SIZE = 32;
@@ -22,28 +25,30 @@ public class GamePanel extends JPanel {
     public static final int SCREEN_HEIGHT_IN_TILES = 9;
 
     //RENDER_SCALE: a multiplier to all pixel values for rendering
-    //at TILE_SIZE = 32, the final tiles will be rendered as 64x64 pixels on the screen
-    public static final int RENDER_SCALE = 2;
+    //i use 2, so at TILE_SIZE = 32,
+    //the final tiles will be rendered as 64x64 pixels on the screen
+    private static final int RENDER_SCALE = 2;
 
     //DEFAULT_TILE: the tile that the game falls back on
     //if it encounters an error accessing a tile (i.e. out of bounds)
     //TODO: better empty space background, or restrict camera to only inbounds?
     public static final Tile DEFAULT_TILE = new Tile(null, -1, -1);
-    private static final BasicStroke HITBOX_STROKE = new BasicStroke(RENDER_SCALE);
 
-    //state: the GameState object. necessary for communication between state and panel
-    private GameState state;
+    //HITBOX_STROKE: the outline used for rendering hitboxes, thru Main.DEBUG_SHOW_HITBOXES
+    private static final BasicStroke HITBOX_STROKE = new BasicStroke(RENDER_SCALE);
 
     //displayFPS: the current FPS value to display on the screen
     public double displayFPS;
 
     //fps: an array that stores 15 frames of fps values, for averaging
+    //not very necessary at this moment, tbh
     public double[] fps;
 
     //cameraX, cameraY, cameraMoveSpeed:
     //these variables handle the camera location
     //and movement, in the world.
     //TODO: camera object?
+    //^probably not?
     public int cameraX;
     public int cameraY;
     public int cameraMoveSpeed = 8;
@@ -84,6 +89,9 @@ public class GamePanel extends JPanel {
     }
 
     //update(): called once per frame
+    //this method should call everything that needs
+    //to run every single frame,
+    //such as controls and drawing to the screen
     public void update(){
         //move the camera, based on user input
         this.handleCameraMovement(state.controller);
@@ -114,9 +122,6 @@ public class GamePanel extends JPanel {
     private void drawMap(Graphics2D g2D){
         //grab the map's 2D tile array
         Tile[][] map = state.getMapLayout();
-
-        int width = map[0].length;
-        int height = map.length;
 
         //startingX, startingY: the top left corner tile of the camera's visible space
         //does not include the tile that is partially cut off
@@ -158,7 +163,7 @@ public class GamePanel extends JPanel {
 
                 //draw hitboxes if desired
                 //TODO: scaling of debug hitboxes
-                if(Main.DEBUG_HITBOXES) {
+                if(Main.DEBUG_SHOW_HITBOXES) {
                     try {
                         g2D.setColor(map[i][j].hasCollision ? Color.RED : Color.GREEN);
                         g2D.setStroke(HITBOX_STROKE);
@@ -190,7 +195,7 @@ public class GamePanel extends JPanel {
 
             g2D.drawImage(image, transform, null);
 
-            if(Main.DEBUG_HITBOXES) {
+            if(Main.DEBUG_SHOW_HITBOXES) {
                 g2D.setColor(Color.GREEN);
                 g2D.fillOval((x - cameraX / RENDER_SCALE) * RENDER_SCALE,(y - cameraY / RENDER_SCALE) * RENDER_SCALE,2*RENDER_SCALE,2*RENDER_SCALE);
                 Rectangle2D box = ent.collider;

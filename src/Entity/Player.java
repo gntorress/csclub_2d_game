@@ -27,7 +27,6 @@ public class Player extends Entity{
     public void update(){
         handleControls(game.controller);
         super.update();
-        collider.setRect(x, y, collider.getWidth(), collider.getHeight());
     }
 
     private void handleControls(ControlHandler controller){

@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+//TODO: Files.readAllLines()
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,20 +74,26 @@ public class FileHandler {
         }
         assert(bufferedReader != null);
 
+        //line: the String value read for the current line
+        String line;
+
         //lineNumber: keeps track of what file line we are on
         int lineNumber = 0;
 
         //loop:
-        while (true) {
+        while(true) {
             //if the reader is not ready, we are out of lines to read, so exit
             try {
                 if (!bufferedReader.ready()) break;
             } catch (IOException e) {
                 Logger.log(2,e);
             }
+
+            //reset line to null
+            line = null;
+
             //grab the next line
             //TODO: readAll()? may be better
-            String line = null;
             try {
                 line = bufferedReader.readLine();
             } catch (IOException e) {
@@ -93,7 +101,11 @@ public class FileHandler {
             }
             lineNumber++;
 
+            //if no line is grabbed (IOException above), skip
+            if(line == null) continue;
+
             //this if-else block checks for the different data prefixes
+            //if the
             if (line.startsWith("//") || line.isBlank()) {
                 //this enables comments and ignores empty lines
                 continue;
@@ -102,7 +114,10 @@ public class FileHandler {
             //size: holds the size of the map
             //with the format: [width]x[height] (lowercase x)
             else if (line.startsWith("size:")) {
+                //grab the data (stored after the colon) and split it by the 'x' in the middle
                 String[] widthAndHeight = line.substring(line.indexOf(':') + 1).trim().split("x");
+
+                //store the values
                 mapWidth = Integer.parseInt(widthAndHeight[0].trim());
                 mapHeight = Integer.parseInt(widthAndHeight[1].trim());
             }
@@ -112,18 +127,42 @@ public class FileHandler {
             //tiles: [number of tiles]
             //[tile code] - [tile name/file name] - [boolean for collision value]
             else if (line.startsWith("tiles:")) {
+
+                //grab the number of tiles (integer after the colon)
                 int numberOfTiles = Integer.parseInt(line.substring(line.indexOf(":") + 1).trim());
+
+                //create a new array in the map object, to hold the tile types
                 outputMap.tileTypes = new TileType[numberOfTiles];
+
+                //for however many tiles we expect to see,
                 for (int i = 0; i < numberOfTiles; i++) {
+                    //read the next line
                     try {
                         line = bufferedReader.readLine();
                     } catch (IOException e) {
                         Logger.log(2,e.getMessage() + " AT LINE " + lineNumber);
                     }
                     lineNumber++;
+
+                    //if we find a blank line, assume that the tile data ended
+                    if(line.isBlank()){
+                        Logger.log(1, "TOO FEW TILES FOUND!! CHECK TILE COUNT");
+                        break;
+                    }
+
+                    //split the line up using the dashes
                     String[] tileData = line.split("-");
-                    TileType tileToLoad = new TileType(tileData[1].trim(), Boolean.parseBoolean(tileData[2].trim()));
-                    outputMap.tileTypes[Integer.parseInt(tileData[0].trim())] = tileToLoad;
+
+                    //grab the tile information from the split line
+                    int tileIndex = Integer.parseInt(tileData[0].trim());
+                    String tileName = tileData[1].trim();
+                    boolean tileHasCollision = Boolean.parseBoolean(tileData[2].trim());
+
+                    //create the object
+                    TileType tileToLoad = new TileType(tileName, tileHasCollision);
+
+                    //store it
+                    outputMap.tileTypes[tileIndex] = tileToLoad;
                 }
             }
 
@@ -158,7 +197,7 @@ public class FileHandler {
                     try {
                         row = line.split(" ");
                     }catch(NullPointerException e){
-                        Logger.log(2,"END OF FILE REACHED, MISSING MAP DATA", true);
+                        Logger.log(2,"END OF FILE REACHED, MISSING MAP DATA, CANNOT LOAD", true);
                     }
 
                     //iterate through each integer in the line
@@ -169,6 +208,7 @@ public class FileHandler {
 
                         //try to grab the next tile value
                         try {
+                            assert row != null;
                             tileValue = Integer.parseInt(row[j]);
                         } catch (IndexOutOfBoundsException | NumberFormatException e) {
                             //if invalid data, log it and skip the rest of the loop iteration

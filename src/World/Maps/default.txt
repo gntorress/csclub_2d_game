@@ -1,10 +1,26 @@
+//syntax matters!!!
+
+//size: [WIDTH]x[HEIGHT]
+
 size: 32x16
+
+//tiles: [NUMBER OF TILES]
+//each tile has format
+//[TILE INDEX] - [TILE NAME] - [TILE COLLISION BOOLEAN]
+//the tile name is the name used for the texture file!!!
 
 tiles: 4
 0 - grass - false
 1 - rock - true
 2 - water - true
 3 - sand - false
+
+//layout:
+//WIDTH x HEIGHT grid of integer values
+//each integer represents a tile, following the
+//tile indeces as given above, in the tiles: section
+//separate each integer with whitespace
+//supports multi-digit integers
 
 layout:
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1

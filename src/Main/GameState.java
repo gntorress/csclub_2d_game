@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 public class GameState {
 
+    private static final String MAP_SELECTION = "default";
+
     //controller: the input controller, same controller as the Game object
     public ControlHandler controller;
 
@@ -34,7 +36,7 @@ public class GameState {
 
         //load the map
         //TODO: map selection
-        loadedMap = FileHandler.loadMap("default");
+        loadedMap = FileHandler.loadMap(MAP_SELECTION);
 
         //create the entity array
         entityArray = new ArrayList<>();
