@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.Arrays;
 
 public class FileHandler {
+
     //TEXTURES_FOLDER: what folder to look into for textures, in /src/
     public static final String TEXTURES_FOLDER = "textures/";
 
@@ -274,4 +275,5 @@ public class FileHandler {
         if(!outputMap.isValid()) Logger.log(2, "ERROR IN MAP LAYOUT");
         return outputMap;
     }
+
 }

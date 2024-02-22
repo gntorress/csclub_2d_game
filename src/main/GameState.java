@@ -32,7 +32,7 @@ public class GameState {
 
         //load the map
         //TODO: map selection
-        loadedMap = FileHandler.loadMap(Game.MAP_SELECTION);
+        loadedMap = FileHandler.loadMap(Main.MAP_SELECTION);
 
         //create the entity array, with an initial size of 16
         //TODO: MASTER CONSTANTS CLASS

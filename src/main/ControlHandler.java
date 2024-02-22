@@ -3,6 +3,7 @@ package main;
 import java.awt.event.*;
 
 public class ControlHandler implements KeyListener, MouseListener, MouseMotionListener {
+
     //ControlHandler handles all mouse/keyboard input from the player.
     //Method names should be self-explanatory?
 

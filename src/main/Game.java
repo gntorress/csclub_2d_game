@@ -4,8 +4,6 @@ import javax.swing.*;
 
 public class Game implements Runnable {
 
-    public static final String MAP_SELECTION = "default";
-
     //window: the actual Windows window that the game will be contained in
     public JFrame window;
 
@@ -26,6 +24,7 @@ public class Game implements Runnable {
     //(to prevent the game for running multiple times at the same time)
     private boolean running = false;
 
+    //CONSTRUCTOR
     public Game() {
         //create the game state
         state = new GameState();
@@ -35,28 +34,32 @@ public class Game implements Runnable {
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //close window = exit program
         window.setResizable(false);         //prevent user resizing (by dragging)
         window.setTitle(Main.TITLE);        //set title (from Main)
-        window.setVisible(true);            //set the window to be visible
+        window.setIconImage(FileHandler.loadImage(Main.ICON_FILENAME)); //set icon (from Main)
 
-        //initialize panel settings
-        panel = new GamePanel(state);       //create the object
-        state.linkPanel(panel);             //link to the gamestate
+        //initialize the "panel" - the screen that will be drawn on
+        panel = new GamePanel(state);
 
         //add the panel to the window
         window.add(panel);
-        //"pack" - set the window size to the panel size
+
+        //"pack" - set the window size to the max size of its elements
+        //in this case, set the window size to the panel size
         window.pack();
 
         //create controller object
         controller = new ControlHandler();
+
         //link it to the game logic
         state.linkController(controller);
+
         //add "listeners" to the panel,
         //these let us "hear" when the user clicks/presses a button/moves mouse
         panel.addKeyListener(controller);
         panel.addMouseListener(controller);
         panel.addMouseMotionListener(controller);
 
-        panel.requestFocus();
+        //finally, set the window to be visible
+        window.setVisible(true);
     }// END Game CONSTRUCTOR
 
     //start() - initializes the thread that runs the game, and starts it
@@ -87,6 +90,7 @@ public class Game implements Runnable {
         double millisecondsPerFrame = 1000.0/Main.TARGET_FPS;
 
         //the thread should never be null, so this should loop forever (until we quit)
+        //this is the MAIN GAME LOOP! this is what a "frame" is!!
         while (thread != null) {
             //save frame start time
             frameStartTimeNano = System.nanoTime();
@@ -94,11 +98,12 @@ public class Game implements Runnable {
             //update the game
             state.update();
 
-            //save game update end time
-            gameUpdateTimeNano = System.nanoTime();
-
             //update the screen
             panel.update();
+
+            //save game update end time, CURRENTLY UNUSED
+            //TODO: compare active rendering time to fixed FPS time
+            gameUpdateTimeNano = System.nanoTime();
 
             //save screen update end time
             frameEndTimeNano = System.nanoTime();
@@ -122,12 +127,15 @@ public class Game implements Runnable {
                 Logger.log(1,"THREAD INTERRUPTED DURING GAME LOOP SLEEP");
             }
 
+            long finalTimeNano = System.nanoTime();
             //totalFrameTimeMilli is the total time from start->end of the entire frame
             // (including sleep), which we use for FPS display
-            totalFrameTimeMilli = (System.nanoTime() - frameStartTimeNano) / 1000000.0;
+            totalFrameTimeMilli = (finalTimeNano - frameStartTimeNano) / 1000000.0;
 
             //finally, tell the panel to update the FPS display with that total time.
             panel.updateFPS(totalFrameTimeMilli);
-        }
-    }
+
+        }//end game loop
+
+    }//end run()
 }

@@ -59,6 +59,7 @@ public class GamePanel extends JPanel {
 
         //link with GameState
         state = gameState;
+        state.linkPanel(this);
 
         //initialize fps
         fps = new double[16];
@@ -86,6 +87,8 @@ public class GamePanel extends JPanel {
         //and then swap the current image for the new one
         //(only updates the picture once its fully rendered)
         this.setDoubleBuffered(true);
+
+        centerCamera();
     }
 
     //update(): called once per frame
@@ -216,7 +219,7 @@ public class GamePanel extends JPanel {
         g2D.drawString("fps:"+(double)((int)(displayFPS * 100))/100.0, 10, 12*RENDER_SCALE);
     }
 
-    //updateFPS: takes the time of the previous frame (in milliseconds)
+    //updateFPS(): takes the time of the previous frame (in milliseconds)
     //and calculates the FPS from it
     public void updateFPS(double frameTimeMilli) {
         for(int i = 1; i < fps.length; i++){
@@ -231,11 +234,15 @@ public class GamePanel extends JPanel {
         displayFPS = displayFPS / fps.length;
     }
 
-    //handleCameraMovement: moves camera around, based on controller
+    //handleCameraMovement(): moves camera around, based on controller
     public void handleCameraMovement(ControlHandler controller) {
-        if(controller.resetCam){
+        //i use a logical XOR with the resetCam boolean and the FORCE_CENTERED_CAMERA setting boolean
+        //to determine if the camera gets centered every frame or not
+        if(controller.resetCam ^ Main.FORCE_CENTERED_CAMERA){
             centerCamera();
-        }else {
+        }
+        //otherwise, the camera is free to move with the camera hotkeys
+        else {
             if (controller.upCam) cameraY -= cameraMoveSpeed;
             if (controller.leftCam) cameraX -= cameraMoveSpeed;
             if (controller.downCam) cameraY += cameraMoveSpeed;
@@ -243,6 +250,7 @@ public class GamePanel extends JPanel {
         }
     }
 
+    //centerCamera(): center the camera view on the player.
     public void centerCamera(){
         cameraX = ((int) state.player.x * RENDER_SCALE - (RENDER_SCALE * SCREEN_WIDTH_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
         cameraY = ((int) state.player.y * RENDER_SCALE - (RENDER_SCALE * SCREEN_HEIGHT_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
