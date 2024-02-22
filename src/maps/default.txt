@@ -26,7 +26,7 @@ spawn: 2,2
 //layout:
 //WIDTH x HEIGHT grid of integer values
 //each integer represents a tile, following the
-//tile indeces as given above, in the tiles: section
+//tile indices as given above, in the tiles: section
 //separate each integer with whitespace
 //supports multi-digit integers
 
