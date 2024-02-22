@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="csclub_2d_game:jar">
+  <artifact type="jar" build-on-make="true" name="csclub_2d_game:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/csclub_2d_game_jar</output-path>
     <root id="archive" name="csclub_2d_game.jar">
       <element id="module-output" name="csclub_2d_game" />
