@@ -9,13 +9,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import static main.Main.TILE_SIZE;
+
 public class GamePanel extends JPanel {
     //state: the GameState object. necessary for communication between state and panel
     private final GameState state;
 
-    //TILE_SIZE: the size (in pixels) of every game tile.
-    //currently, tiles are 32x32 pixels
-    public static final int TILE_SIZE = 32;
+
 
     //SCREEN_WIDTH_IN_TILES:
     //SCREEN_HEIGHT_IN_TILES:

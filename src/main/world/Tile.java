@@ -2,6 +2,7 @@ package main.world;
 
 import main.FileHandler;
 import main.GamePanel;
+import main.Main;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -42,7 +43,7 @@ public class Tile {
         this.y = y;
 
         //init collider
-        collider = new Rectangle2D.Float(x, y, GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
+        collider = new Rectangle2D.Float(x, y, Main.TILE_SIZE, Main.TILE_SIZE);
 
         //get tile information based on type
         image = FileHandler.loadImage(this.type.fileName);

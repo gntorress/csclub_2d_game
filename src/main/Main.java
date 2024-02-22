@@ -13,6 +13,10 @@ public class Main {
 
     //TARGET_FPS: the fps to try to render at
     public static final int TARGET_FPS = 60;
+    
+    //TILE_SIZE: the size (in pixels) of every game tile.
+    //currently, tiles are 32x32 pixels
+    public static final int TILE_SIZE = 32;
 
     //CONTROL_TYPE: the control scheme.
     //    0: WASD movement

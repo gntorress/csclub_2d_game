@@ -94,8 +94,8 @@ public class GameState {
         Tile t;
 
         //grab the tile coordinate by dividing by the tile size
-        int tileX = (int) (x / GamePanel.TILE_SIZE);
-        int tileY = (int) (y / GamePanel.TILE_SIZE);
+        int tileX = (int) (x / Main.TILE_SIZE);
+        int tileY = (int) (y / Main.TILE_SIZE);
 
         //if the pixel coordinate is negative, we have an issue with rounding,
         //which i solve by just decrementing by one.

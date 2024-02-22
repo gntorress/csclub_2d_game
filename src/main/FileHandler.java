@@ -234,8 +234,8 @@ public class FileHandler {
                         }
 
                         //calculate the X and Y coordinates of the tile
-                        int x = j * GamePanel.TILE_SIZE;
-                        int y = i * GamePanel.TILE_SIZE;
+                        int x = j * Main.TILE_SIZE;
+                        int y = i * Main.TILE_SIZE;
 
                         //if loadedTiles is null, the tile information wasn't found
                         //cannot load without this, so crash
@@ -259,8 +259,8 @@ public class FileHandler {
                 String[] tileCoordinates = line.substring(line.indexOf(':') + 1).trim().split(",");
 
                 //store the values
-                outputMap.spawnX = Integer.parseInt(tileCoordinates[0].trim()) * GamePanel.TILE_SIZE + GamePanel.TILE_SIZE/2;
-                outputMap.spawnY = Integer.parseInt(tileCoordinates[1].trim()) * GamePanel.TILE_SIZE + GamePanel.TILE_SIZE/2;
+                outputMap.spawnX = Integer.parseInt(tileCoordinates[0].trim()) * Main.TILE_SIZE + Main.TILE_SIZE/2;
+                outputMap.spawnY = Integer.parseInt(tileCoordinates[1].trim()) * Main.TILE_SIZE + Main.TILE_SIZE/2;
             }
 
             //if no other command is met, we have a line that we do not understand
