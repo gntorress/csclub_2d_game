@@ -27,7 +27,7 @@ public class GamePanel extends JPanel {
     //RENDER_SCALE: a multiplier to all pixel values for rendering
     //i use 2, so at TILE_SIZE = 32,
     //the final tiles will be rendered as 64x64 pixels on the screen
-    private static final int RENDER_SCALE = 2;
+    public static final int RENDER_SCALE = 2;
 
     //DEFAULT_TILE: the tile that the game falls back on
     //if it encounters an error accessing a tile (i.e. out of bounds)
@@ -47,8 +47,7 @@ public class GamePanel extends JPanel {
     //cameraX, cameraY, cameraMoveSpeed:
     //these variables handle the camera location
     //and movement, in the main.world.
-    //TODO: camera object?
-    //^probably not?
+    //TODO: camera object? for multiple preset cameras? idk
     public int cameraX;
     public int cameraY;
     public int cameraMoveSpeed = 8;
@@ -63,6 +62,7 @@ public class GamePanel extends JPanel {
 
         //initialize fps
         fps = new double[16];
+
         //initialize camera
         cameraX = 0;
         cameraY = 0;
@@ -187,11 +187,12 @@ public class GamePanel extends JPanel {
 
             AffineTransform transform = new AffineTransform();
 
+
             transform.scale(RENDER_SCALE,RENDER_SCALE);
 
             int x = ((int)(ent.x));
             int y = ((int)(ent.y));
-            transform.translate(x - cameraX / RENDER_SCALE, y - cameraY / RENDER_SCALE);
+            transform.translate((float)(x - cameraX / RENDER_SCALE), (float)(y - cameraY / RENDER_SCALE));
 
             g2D.drawImage(image, transform, null);
 
@@ -233,13 +234,17 @@ public class GamePanel extends JPanel {
     //handleCameraMovement: moves camera around, based on controller
     public void handleCameraMovement(ControlHandler controller) {
         if(controller.resetCam){
-            cameraX = ((int) state.player.x * RENDER_SCALE - (RENDER_SCALE * SCREEN_WIDTH_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
-            cameraY = ((int) state.player.y * RENDER_SCALE - (RENDER_SCALE * SCREEN_HEIGHT_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
+            centerCamera();
         }else {
             if (controller.upCam) cameraY -= cameraMoveSpeed;
             if (controller.leftCam) cameraX -= cameraMoveSpeed;
             if (controller.downCam) cameraY += cameraMoveSpeed;
             if (controller.rightCam) cameraX += cameraMoveSpeed;
         }
+    }
+
+    public void centerCamera(){
+        cameraX = ((int) state.player.x * RENDER_SCALE - (RENDER_SCALE * SCREEN_WIDTH_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
+        cameraY = ((int) state.player.y * RENDER_SCALE - (RENDER_SCALE * SCREEN_HEIGHT_IN_TILES * TILE_SIZE)/2 + RENDER_SCALE*state.player.size/2);
     }
 }

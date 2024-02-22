@@ -7,6 +7,7 @@ import main.world.TileType;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Arrays;
 
 public class FileHandler {
     //TEXTURES_FOLDER: what folder to look into for textures, in /src/
@@ -41,19 +42,15 @@ public class FileHandler {
         try {
             //get the input stream
             inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+            assert inputStream != null;
 
-            //if its null, it failed to load
-            if (inputStream != null) {
-                //if it's not null, read the image
-                image = ImageIO.read(inputStream);
-            }else{
-                Logger.log(2, "FAILED TO FIND IMAGE AT " + filePath);
-            }
+            //if inputStream is null, it failed to load
+            image = ImageIO.read(inputStream);
         }
         //if it fails, the image isnt found
-        catch (IOException e) {
+        catch (IOException | AssertionError | IllegalArgumentException e) {
             //log this
-            Logger.log(1, "IMAGE: " + fileName + " NOT FOUND");
+            Logger.log(1, "IMAGE: " + fileName + " NOT FOUND AT " + filePath);
 
             //then try to get the default image instead
             try {
@@ -76,7 +73,8 @@ public class FileHandler {
     }
 
     //loadMap(): takes in the name of a map file (without extension)
-    //returns a 2D array of tiles, to be stored in GameState
+    //returns a Map object, with each tile type in a 1D array,
+    //and an actual map layout stored in a 2D array, to be stored in GameState
     public static Map loadMap(String fileName) {
         //initialize to invalid values, so if something is out of order, we know
         Map outputMap = new Map();
@@ -89,18 +87,24 @@ public class FileHandler {
         //inputStream: loads our map .txt file
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
 
+        //if inputStream is null, the file was not found. so we crash
+        if(inputStream == null) Logger.log(2, "FAILED TO FIND MAP AT " + filePath, true);
+        assert inputStream != null;
+
         //bufferedReader: reads the file
-        BufferedReader bufferedReader = null;
-        if (inputStream != null) {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        }else{
-            //if its null, we failed to find the file
-            Logger.log(2, "FAILED TO FIND MAP AT " + filePath, true);
-        }
-        assert bufferedReader != null;
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
         //lines: an array of all the lines in the file
+        //we load all the lines in the file to a single String array
         String[] lines = bufferedReader.lines().toArray(String[]::new);
+
+        //since we read everything at once, we go ahead and close the reader, to not waste resources
+        try {
+            bufferedReader.close();
+        } catch (IOException e) {
+            Logger.log(1,"IO EXCEPTION ON BUFFEREDREADER CLOSE");
+            Arrays.stream(e.getStackTrace()).forEach(element -> Logger.log(1,element.toString()));
+        }
 
         //line: the String value read for the current line
         String line;
@@ -108,19 +112,18 @@ public class FileHandler {
         //lineNumber: keeps track of what file line we are on
         int lineNumber = 0;
 
-        int lineCount = lines.length;
+        //maxLine: how many lines there are in total
+        int maxLine = lines.length - 1;
 
         //loop until out lines in file:
-        while(lineNumber < lineCount) {
-
-            //reset line to null
-            line = null;
+        //TODO: replace with for loop, i was lazy
+        while(lineNumber < maxLine) {
 
             //grab the next current line (and increment the count)
             line = lines[lineNumber++];
 
             //this if-else block checks for the different data prefixes
-            //if the
+            //ignore blank lines and lines starting with // (comments)
             if (line.startsWith("//") || line.isBlank()) {
                 //this enables comments and ignores empty lines
                 continue;
@@ -151,7 +154,11 @@ public class FileHandler {
 
                 //for however many tiles we expect to see,
                 for (int i = 0; i < numberOfTiles; i++) {
+
                     //grab the next current line (and increment the count)
+                    if(lineNumber > maxLine) {
+                        Logger.log(1, "END OF FILE REACHED, MISSING MAP DATA");
+                    }
                     line = lines[lineNumber++];
 
                     //if we find a blank line, assume that the tile data ended
@@ -195,6 +202,10 @@ public class FileHandler {
                 for (int i = 0; i < mapHeight; i++) {
 
                     //grab the next current line (and increment the count)
+                    if(lineNumber > maxLine){
+                        Logger.log(1,"END OF FILE REACHED, MISSING MAP DATA");
+                        break;
+                    }
                     line = lines[lineNumber++];
 
                     //split it by spaces
@@ -239,12 +250,25 @@ public class FileHandler {
                 }
             }
 
+            //spawn: holds the coordinate of the tile that the player will spawn in
+            //with the format: [x coord],[y coord]
+            //0,0 represents the top left tile
+            else if(line.startsWith("spawn:")){
+                //grab the data (stored after the colon) and split it by the ',' in the middle
+                String[] tileCoordinates = line.substring(line.indexOf(':') + 1).trim().split(",");
+
+                //store the values
+                outputMap.spawnX = Integer.parseInt(tileCoordinates[0].trim()) * GamePanel.TILE_SIZE + GamePanel.TILE_SIZE/2;
+                outputMap.spawnY = Integer.parseInt(tileCoordinates[1].trim()) * GamePanel.TILE_SIZE + GamePanel.TILE_SIZE/2;
+            }
+
             //if no other command is met, we have a line that we do not understand
             //log this
             else{
                 Logger.log(1,"INVALID MAP LINE AT LINE " + lineNumber);
             }
-        }
+
+        }   //end file loop
 
         //throw error if the map is invalid
         if(!outputMap.isValid()) Logger.log(2, "ERROR IN MAP LAYOUT");

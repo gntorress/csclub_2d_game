@@ -7,6 +7,9 @@ public class Map {
     public TileType[] tileTypes;
     public Tile[][] layout;
 
+    public int spawnX;
+    public int spawnY;
+
     public Map(){
         tileTypes = null;
         layout = null;

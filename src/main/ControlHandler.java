@@ -27,8 +27,6 @@ public class ControlHandler implements KeyListener, MouseListener, MouseMotionLi
         //repeats are because of Windows! I cant fix it without replacing this controller
         //with something else. this is why i use booleans here, they cant add up
 
-        if(Main.DEBUG_PRINT_KEYCODES) System.out.println(e.getKeyCode());
-
         switch(e.getKeyCode()){
             case KeyEvent.VK_W:    //W
                 up = true;

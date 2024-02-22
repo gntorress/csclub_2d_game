@@ -17,11 +17,7 @@ public class Player extends Entity{
     }
     protected void initDefaults(){
         if(Main.DEBUG_NOCOLLIDE) this.hasCollision = false;
-        x = 64;
-        y = 64;
-        targetX = x;
-        targetY = y;
-        setImage(FileHandler.PLAYER_TEXTURE);
+        setDirectionalImages(FileHandler.PLAYER_TEXTURE);
     }
 
     public void update(){
@@ -34,7 +30,9 @@ public class Player extends Entity{
         if (Main.CONTROL_TYPE == 1) {
             //MOUSE CONTROLS! player follows mouse clicks/drags
             if(controller.isLeftClick) {
-                this.moveTarget(controller.mouseX - this.size + game.panel.cameraX, controller.mouseY - this.size + game.panel.cameraY);
+                int targetX = (controller.mouseX + game.panel.cameraX) / game.cameraScale - this.size/2;
+                int targetY = (controller.mouseY + game.panel.cameraY) / game.cameraScale - this.size/2;
+                this.moveTarget(targetX, targetY);
             }
         }
         else {

@@ -4,6 +4,7 @@ import main.world.Tile;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class Entity {
     //game: the GameState object, so the entity can interact with other things
@@ -15,10 +16,26 @@ public class Entity {
     //image: the sprite of the entity
     public BufferedImage image;
 
+    //hasDirectionality: states whether the entity rotates/changes image as it changes direction
+    public boolean hasDirectionality;
+
+    //up/left/down/rightImage: these hold the four images used for the four directions
+    private BufferedImage upImage;
+    private BufferedImage leftImage;
+    private BufferedImage downImage;
+    private BufferedImage rightImage;
+
+    //these constants hold the suffix added to the fileName of the image, for each direction
+    private static final String DIRECTION_UP_SUFFIX = "_up";
+    private static final String DIRECTION_LEFT_SUFFIX = "_left";
+    private static final String DIRECTION_DOWN_SUFFIX = "_down";
+    private static final String DIRECTION_RIGHT_SUFFIX = "_right";
+
+
     //x, y: 2D coordinate location
     public float x, y;
 
-    //targetX, targetY: the 2D coordinate to travel towards
+    //targetX, targetY: the 2D coordinate to travel towards every frame
     public float targetX, targetY;
 
     //size: render/collision length/width, assumed to be square
@@ -27,7 +44,9 @@ public class Entity {
     //moveSpeed: distance traveled per update() call (per frame)
     public float moveSpeed;
 
-    //collider: used for checking collision (the "hitbox") TODO: IMPLEMENT, USE FOR ENTITY/FIELD COLLISION
+    //collider: used for checking collision (the "hitbox")
+    //TODO: IMPLEMENT, CURRENTLY USING size FOR COLLISIONS
+    //TODO: COLLISIONS WITH OTHER ENTITIES AND EFFECT FIELDS
     public Rectangle2D collider;
 
     //hasCollision: if false, ignores collision
@@ -40,6 +59,7 @@ public class Entity {
         targetX = x;
         targetY = y;
         hasCollision = true;
+        hasDirectionality = false;
     }
     public Entity(String name, int size, int moveSpeed) {
         this();
@@ -58,8 +78,19 @@ public class Entity {
 
     //setImage(): takes the name of a file in the textures folder
     //and loads that into the entity's image
-    public void setImage(String fileName) {
+    protected void setImage(String fileName) {
         image = FileHandler.loadImage(fileName);
+    }
+
+    protected void setDirectionalImages(String fileName){
+        hasDirectionality = true;
+
+        upImage = FileHandler.loadImage(fileName + DIRECTION_UP_SUFFIX);
+        leftImage = FileHandler.loadImage(fileName + DIRECTION_LEFT_SUFFIX);
+        downImage = FileHandler.loadImage(fileName + DIRECTION_DOWN_SUFFIX);
+        rightImage = FileHandler.loadImage(fileName + DIRECTION_RIGHT_SUFFIX);
+
+        image = downImage;
     }
 
     //moveTarget(): sets the X and Y main.world coordinates that the entity will move towards automatically
@@ -132,6 +163,23 @@ public class Entity {
             }
         }
 
+        //if the entity has directionality enabled,
+        //we change the image rendered based on what direction they are moving
+        if(hasDirectionality) {
+            //currently prioritizes horizontal movement over vertical movement
+            //(if moving diagonal, entity will face left/right
+            //TODO: keep first direction traveled from standstill (how? we'll see)
+
+            // <-
+            if (deltaX < 0) image = leftImage;
+            // ->
+            else if (deltaX > 0) image = rightImage;
+            // ^
+            else if (deltaY < 0) image = upImage;
+            // V
+            else if (deltaY > 0) image = downImage;
+        }
+
         //update collider to new position
         collider.setRect(x, y, collider.getWidth(), collider.getHeight());
     }
@@ -157,6 +205,8 @@ public class Entity {
             x = x + this.size;
 
         }
+
+        //grab the two tiles to check, one for each "shoulder"
         t1 = game.tileAt(x + moveX, y1);
         t2 = game.tileAt(x + moveX, y2);
 
@@ -196,4 +246,14 @@ public class Entity {
         boolean collide = t1.hasCollision || t2.hasCollision;
         return !collide;
     }
+
+    //setLocation: moves the entity to the specific coordinates in worldspace,
+    //centered on the point
+    public void setLocation(int x, int y){
+        this.x = x - this.size/2;
+        this.y = y - this.size/2;
+        this.targetX = x;
+        this.targetY = y;
+    }
+
 }

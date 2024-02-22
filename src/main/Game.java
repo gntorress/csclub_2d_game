@@ -4,6 +4,8 @@ import javax.swing.*;
 
 public class Game implements Runnable {
 
+    public static final String MAP_SELECTION = "default";
+
     //window: the actual Windows window that the game will be contained in
     public JFrame window;
 
