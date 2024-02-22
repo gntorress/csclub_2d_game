@@ -9,7 +9,7 @@ public class Main {
 
     //MAP_SELECTION: the chosen map to load
     //WILL REMOVE AFTER MAP SELECTION IS IMPLEMENTED
-    public static final String MAP_SELECTION = "beach";
+    public static final String MAP_SELECTION = "default";
 
     //TARGET_FPS: the fps to try to render at
     public static final int TARGET_FPS = 60;
