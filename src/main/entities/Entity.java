@@ -120,7 +120,7 @@ public class Entity {
         float deltaX = targetX - x;
         float deltaY = targetY - y;
 
-        //so long as there is distance to move still, we move.
+        //so long as there is distance to move, we move.
         if (deltaX != 0 || deltaY != 0) {
             //use pythagoras to get distance to target point
             float vectorMagnitude = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -131,9 +131,8 @@ public class Entity {
                 //only really used for mouse movement!
                 //prevents glitchy rapid back-and-forth,
                 //when at the target location but each step overshoots
-                //TODO: fix clipping through walls with this
-                if(canMoveHorizontal(x - targetX)) x = targetX;
-                if(canMoveVertical(y - targetY)) y = targetY;
+                if(canMoveHorizontal(deltaX)) x = targetX;
+                if(canMoveVertical(deltaY)) y = targetY;
             } else {
                 //otherwise, move towards target
 
@@ -141,23 +140,73 @@ public class Entity {
                 float moveX = (deltaX / vectorMagnitude) * moveSpeed;
                 float moveY = (deltaY / vectorMagnitude) * moveSpeed;
 
+                //now, if i just checked for collision and moved, and nothing else,
+                //id run into an issue where there would be a gap between the player and walls,
+                //if the gap was less than one moveX or moveY away.
+                //to fix this, i do this:
+
+                //as long as we haven't moved the full distance given by moveX/moveY,
+                //keep checking if we can move *some distance* (remainingDistance), starting at moveX/moveY
+                //if we cant (but still have distance to move this frame),
+                //divide that "some distance" by two
+
+                //effectively, this is like infinitely adding fractional distances,
+                //until we reach the limit of floating point accuracy
+                //at which point, we are pixel-perfect against the wall blocking us!
+
+                //X COMPONENT
+                //distanceTraveled: keeps track of how far we've moved
                 float distanceTraveled = 0;
+                //remainingDistance: keeps track of how far we still could maybe move
                 float remainingDistance = moveX;
-                while(remainingDistance != 0 && distanceTraveled - moveX != 0){
+
+                //so long as we could still potentially move a distance,
+                while(remainingDistance != 0){
+
+                    //check if we can move the potential distance
                     if(canMoveHorizontal(remainingDistance)){
+
+                        //if so, move the distance
                         x += remainingDistance;
+
+                        //and add it to the distanceTraveled
                         distanceTraveled += remainingDistance;
                     }
+
+                    //check to make sure that we haven't traveled too far/are done traveling
+                    if(Math.abs(distanceTraveled) > Math.abs(moveX)){
+                        //if so, exit the loop
+                        break;
+                    }
+
+                    //otherwise, divide the potential distance by 2
                     remainingDistance = remainingDistance / 2;
                 }
 
+                //Y COMPONENT
+                //distanceTraveled: keeps track of how far we've moved
                 distanceTraveled = 0;
+                //remainingDistance: keeps track of how far we still could maybe move
                 remainingDistance = moveY;
-                while(remainingDistance != 0 && distanceTraveled - moveY != 0){
-                    if(canMoveVertical(remainingDistance) ){
+                while(remainingDistance != 0){
+
+                    //check if we can move the potential distance
+                    if(canMoveVertical(remainingDistance)){
+
+                        //if so, move the distance
                         y += remainingDistance;
+
+                        //and add it to the distanceTraveled
                         distanceTraveled += remainingDistance;
                     }
+
+                    //check to make sure that we haven't traveled too far/are done traveling
+                    if(Math.abs(distanceTraveled) > Math.abs(moveY)){
+                        //if so, exit the loop
+                        break;
+                    }
+
+                    //otherwise, divide the potential distance by 2
                     remainingDistance = remainingDistance / 2;
                 }
             }
